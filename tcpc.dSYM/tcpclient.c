@@ -33,21 +33,24 @@ int main(int argc, char **argv)
     char    recvline[MAXLINE];
 
 
-    /*Usage check*/
+    /*Controla cantidad de argumentos*/
     if(argc != 2)
         err_n_die("usage: %s <server address>", argv[0]);
     
     /*Crea socket*/
+    /* Crea un socket del tipo Strem en Dominio IPv4 in domain DOMAIN, usando
+        protocolo automatico. Devuelve un file descriptor para el nuevo socket */
     if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         err_n_die("Error al crear el socket");
 
-    /*Zero out the address*/
+    /*Pone a cero los bytes*/
     bzero(&servaddr, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
+    servaddr.sin_family = AF_INET;                  
     servaddr.sin_port   = htons(SERVER_PORT);
 
 
-    /*Translate address a binary*/
+    /*Convierte la cadena de caracteres la direccion pasado como argumento en una estructura de dirección de red
+       de la familia AF_INET, y copia la estructura de dirección de red a sin.addr*/
     if(inet_pton(AF_INET, argv[1], &servaddr.sin_addr) <= 0)
         err_n_die("inet_pton error for %s ", argv[1]);
 
