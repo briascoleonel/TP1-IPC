@@ -17,15 +17,15 @@
 #include <netdb.h>
 #include <stdarg.h>
 
-
+//Constante para puerto
 #define SERVER_PORT 18000
-
 
 #define MAXLINE     4096
 #define SA struct sockaddr
 
-void err_n_die(const char *fmt, ...);
-char *bin2hex(const unsigned char *input, size_t len);
 
+
+void err_n_die(const char *fmt, ...);                       //Funcion para errores
+char *bin2hex(const unsigned char *input, size_t len);      //convierte bytes a hexa y controla si algun caracter que no se puede imprimir
 
 #endif

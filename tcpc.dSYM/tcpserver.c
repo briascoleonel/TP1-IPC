@@ -32,10 +32,15 @@ int main(int argc, char **argv)
     {
         struct sockaddr_in addr;
         socklen_t addr_len;
+        char client_address[MAXLINE+1];
 
-        printf("Esperando por una conexion en puert: %d\n",SERVER_PORT);
+        printf("Esperando por una conexion en puerto: %d\n",SERVER_PORT);
         fflush(stdout);
-        connfd = accept(listenfd, (SA *) NULL, NULL);       //Por el NULL acepta cualquier conexion
+        connfd = accept(listenfd, (SA *) &addr, &addr_len);       //Punteros a addr y addr_len
+
+
+        inet_ntop(AF_INET, &addr, client_address, MAXLINE);         //Pasa una direccion a fomato presentable
+        printf("Conexion del client: %s\n", client_address);        //Imprime la direccion del cliente
 
         memset(recvline, 0, MAXLINE);
 

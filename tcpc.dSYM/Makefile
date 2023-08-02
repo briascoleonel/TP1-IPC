@@ -12,5 +12,5 @@ tcps: tcpserver.c
 
 
 clean:
-	rm -rf *.dSYM tcpc
+	rm -rf *.dSYM tcpc tcps
  

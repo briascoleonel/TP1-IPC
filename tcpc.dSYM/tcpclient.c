@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 
 
 
-void err_n_die(const char *fmt, ...)
+/*void err_n_die(const char *fmt, ...)
 {
     int errno_save;
     va_list     ap;
@@ -109,5 +109,5 @@ void err_n_die(const char *fmt, ...)
 
 
     exit(1);
-}
+}*/
 
