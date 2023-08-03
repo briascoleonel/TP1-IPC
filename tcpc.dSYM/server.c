@@ -23,16 +23,20 @@ int main(int argc, char **argv)
     int server_socket, client_socket, addr_size;
     SA_IN server_addr, client_addr;
 
-
+    //Utilizando la funcion check: chequea errores tipicos
+    //Creacion de socket
     check((server_socket = socket(AF_INET, SOCK_STREAM, 0)), "Fallo al crear el socket");
 
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_addr.sin_port = htons(SERVERPORT);
+    server_addr.sin_port = htons(SERVERPORT); //8989
 
+    //Bind y esuchamos en el puerto
     check(bind(server_socket, (SA*)&server_addr, sizeof(server_addr)), "Fallo el bind");
     check(listen(server_socket, SERVER_BACKLOG), "Fallo el listen");
 
+
+    //Loop infinito que acepta conexiones
     while(true)
     {
         printf("Esperando por conexiones...\n");
@@ -40,6 +44,7 @@ int main(int argc, char **argv)
         check(client_socket = accept(server_socket, (SA*)&client_addr, (socklen_t*)&addr_size), "Fallo el accept");
         printf("Conectado!\n");
 
+        //Pasa cada conexion al handler
         handle_connection(client_socket);
     }
 
@@ -57,6 +62,8 @@ int check(int exp, const char *msg)
     return exp;
 }
 
+//El cliente envia el nombre del archivo y el server lee y devuelve el archivo solicitado(simil web server)
+//No es seguro ya que puede leer cualquier archivo del disco duro
 void handle_connection(int client_socket)
 {
     char buffer[BUFSIZE];
@@ -64,22 +71,47 @@ void handle_connection(int client_socket)
     int msgsize = 0;
     char actualpath[PATH_MAX+1];
 
+    //Lee el mensaje del cliente
     while((bytes_read = read(client_socket, buffer+msgsize, sizeof(buffer)-msgsize-1)) > 0)
     {
         msgsize += bytes_read;
+        //Con limite en el BUFSIZE para tamaño o si recibe un salto de linea
         if(msgsize > BUFSIZE-1 || buffer[msgsize-1] == '\n')
         break;
     }
+    //Chequeamos errrores
     check(bytes_read, "Error de recepecion");
-    buffer[msgsize-1] = 0;
+    buffer[msgsize-1] = 0;      //Terminamos el buffer
 
+    //Imprime REQUEST para ver que esta ocurriendo
     printf("REQUEST: %s\n", buffer);
     fflush(stdout);
 
+    //Usa realpath para comprobar que el actual es real
     if(realpath(buffer, actualpath) == NULL)
     {
         printf("Error(bad path): %s\n", buffer);
         close(client_socket);
         return;
     }
+
+    //Abre el archivo solicitado
+    FILE *fp = fopen(actualpath, "r");
+    if(fp == NULL)
+    {
+        printf("Error(abriendo): %s\n", buffer);
+        close(client_socket);
+        return;
+    }
+
+    //Leemos el documento
+    while ((bytes_read = fread(buffer,1,BUFSIZE, fp)) > 0)
+    {
+        printf("Enviando %zu bytes\n", bytes_read);
+        write(client_socket, buffer, bytes_read);       //Envia el documento
+    }
+    close(client_socket);           //Cerramos el socket
+    fclose(fp);                     //Cerramos el archivo
+    printf("Cerrando conezion\n");  //Conexion terminada
+
 }
