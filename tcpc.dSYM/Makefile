@@ -1,16 +1,11 @@
+CC=gcc
+CFLAGS=-g
+BINS=server
 
-all:common.o tcpc tcps
+all: $(BINS)
 
-common.o: common.h common.c
-	gcc -c common.c
+%: %.c
+	$(CC) $(CFLAGS) -o $@ $^
 
-tcpc: tcpclient.c
-	gcc -o tcpc tcpclient.c common.o
-
-tcps: tcpserver.c
-	gcc -o tcps tcpserver.c common.o
-
-
-clean:
-	rm -rf *.dSYM tcpc tcps
- 
+clean: 
+	rm -rf *.dSYM $(BINS)

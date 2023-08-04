@@ -6,16 +6,17 @@
 #include <arpa/inet.h>
 #include <stdbool.h>
 #include <linux/limits.h>
+#include <pthread.h>                //Para funciones thread
 
 #define SERVERPORT  8989
 #define BUFSIZE     4096
 #define SOCKETERROR (-1)
-#define SERVER_BACKLOG 1
+#define SERVER_BACKLOG 100          //Cantidad de conexiones que puede esperar
 
 typedef struct sockaddr_in SA_IN;
 typedef struct sockaddr SA;
 
-void handle_connection(int client_socket);
+void * handle_connection(void* p_client_socket);
 int check(int exp, const char *msg);
 
 int main(int argc, char **argv)
@@ -45,7 +46,11 @@ int main(int argc, char **argv)
         printf("Conectado!\n");
 
         //Pasa cada conexion al handler
-        handle_connection(client_socket);
+        //handle_connection(client_socket);
+        pthread_t t;
+        int *pclient =  malloc(sizeof(int));
+        *pclient = client_socket;
+        pthread_create(&t, NULL, handle_connection, pclient);
     }
 
     return 0;
@@ -64,8 +69,10 @@ int check(int exp, const char *msg)
 
 //El cliente envia el nombre del archivo y el server lee y devuelve el archivo solicitado(simil web server)
 //No es seguro ya que puede leer cualquier archivo del disco duro
-void handle_connection(int client_socket)
+void * handle_connection(void* p_client_socket)
 {
+    int client_socket = *((int*)p_client_socket);
+    free(p_client_socket);
     char buffer[BUFSIZE];
     size_t bytes_read;
     int msgsize = 0;
@@ -92,7 +99,7 @@ void handle_connection(int client_socket)
     {
         printf("Error(bad path): %s\n", buffer);
         close(client_socket);
-        return;
+        return NULL;
     }
 
     //Abre el archivo solicitado
@@ -101,7 +108,7 @@ void handle_connection(int client_socket)
     {
         printf("Error(abriendo): %s\n", buffer);
         close(client_socket);
-        return;
+        return NULL;
     }
 
     //Leemos el documento
@@ -112,6 +119,7 @@ void handle_connection(int client_socket)
     }
     close(client_socket);           //Cerramos el socket
     fclose(fp);                     //Cerramos el archivo
-    printf("Cerrando conezion\n");  //Conexion terminada
+    printf("Cerrando conexion\n");  //Conexion terminada
+    return NULL;
 
 }
