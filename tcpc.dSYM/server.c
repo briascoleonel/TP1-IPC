@@ -50,7 +50,8 @@ int main(int argc, char **argv)
         pthread_t t;
         int *pclient =  malloc(sizeof(int));
         *pclient = client_socket;
-        pthread_create(&t, NULL, handle_connection, pclient);
+        pthread_create(&t, NULL, handle_connection, pclient);     //CON THREADS
+        //handle_connection(pclient);     //SIN THREADS
     }
 
     return 0;
@@ -110,6 +111,8 @@ void * handle_connection(void* p_client_socket)
         close(client_socket);
         return NULL;
     }
+
+    sleep(1);       //No hace nada(version lenta)
 
     //Leemos el documento
     while ((bytes_read = fread(buffer,1,BUFSIZE, fp)) > 0)
