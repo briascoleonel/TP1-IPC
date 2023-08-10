@@ -13,10 +13,11 @@
 #define BUFSIZE     4096
 #define SOCKETERROR (-1)
 #define SERVER_BACKLOG 100          //Cantidad de conexiones que puede esperar
-#define THREAD_POOL_SIZE 4        //Cantidad de threads que vamos a correr
+#define THREAD_POOL_SIZE 5        //Cantidad de threads que vamos a correr
 
 pthread_t thread_pool[THREAD_POOL_SIZE];
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t condition_var = PTHREAD_COND_INITIALIZER;            //Permite a los threads esperar por alguna condicion con wait y signal
 
 typedef struct sockaddr_in SA_IN;
 typedef struct sockaddr SA;
@@ -68,6 +69,7 @@ int main(int argc, char **argv)
         *pclient = client_socket;
         pthread_mutex_lock(&mutex);
         enqueue(pclient);
+        pthread_cond_signal(&condition_var);
         pthread_mutex_unlock(&mutex);
         //pthread_create(&t, NULL, handle_connection, pclient);     //CON THREADS
         //handle_connection(pclient);     //SIN THREADS
@@ -91,9 +93,13 @@ void * thread_function(void *arg)
 {
     while(true)
     {
-        int* pclient;  
+        int *pclient;  
         pthread_mutex_lock(&mutex);    
-        pclient = dequeue();
+        if((pclient = dequeue()) == NULL)
+        {
+            pthread_cond_wait(&condition_var, &mutex);      //Van a esperar solo si no tienen que esperar la cola
+            pclient = dequeue();
+        }
         pthread_mutex_unlock(&mutex);    
 
         if(pclient != NULL)     //Hay una conexion
