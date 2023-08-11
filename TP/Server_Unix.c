@@ -20,7 +20,9 @@
 #define SA struct sockaddr
 
 void server_conf_socket_Unix(int *sock, struct sockaddr_un *serv_addr, long unsigned int max, char *filename);
-
+void* file_writing_thread(void * arg);
+int get_cant_hand_disp(int *Handlers, long unsigned int maxHandlers);
+int get_prim_hand_disp(int *Handlers, long unsigned int maxHandlers);
 
 //Struct que vamos a utilizar
 
@@ -84,6 +86,56 @@ void *Unix_Server(void *arg)
     //Para configurar el socket se utiliza esta funcion
     server_conf_socket_Unix(&listenfd, &serv_addr, (unsigned long int)argumentos->maxClientes, argumentos->UNIX_File_Name);
 
+    //Iniciamos todos los handlers como disponibles
+    for(int i=0; i<argumentos->maxClientes; i++)
+    {
+        handlers_disp[i] = 1;
+    }
+
+    //Crea y lanza un nuevo hilo que escribe el archivo local
+    //Usa la funcion file_writing_thread que pasa un archivo que se abre de acuerdo a los argumentos que le pasamos
+    pthread_create(&file_writer_thread,NULL,file_writing_thread,&file_writer_arg);
+
+    //Esperando conexiones y lanzando hilos
+    while(*(argumentos->salir) == 0)
+    {
+        //En exclusion mutua usando el lock
+        pthread_mutex_lock(&lock);
+        //Usa la funcion get_cant_hand_disp
+        cant_handlers_disp = (long unsigned int) get_cant_hand_disp(handlers_disp,(unsigned long int) argumentos->maxClientes);
+        pthread_mutex_unlock(&lock);    //Libero el lock
+
+        //Compruebo que queden handlers disponibles
+        //Usa get_prim_hand_disp para comprobar tambien que haya disponibles
+        if(cant_handlers_disp == 0 || get_prim_hand_disp(handlers_disp, (unsigned long int)argumentos->maxClientes) < 0)
+        {
+            while(cant_handlers_disp == 0)
+            {
+                pthread_mutex_lock(&lock);
+                cant_handlers_disp = (long unsigned int)getAvailableHandlersAmount(handlers_disp, (unsigned long int)argumentos->maxClientes);
+                pthread_mutex_unlock(&lock);
+            }
+        }
+
+        //Pasando la prueba de disponibilidad, agarra el primero disponible
+        //Tambien en exclusion mutua
+        pthread_mutex_lock(&lock);
+        sig_handler = get_cant_hand_disp(handlers_disp, (unsigned long int)argumentos->maxClientes);
+        pthread_mutex_unlock(&lock);
+
+        fflush(stdout);
+
+        //Espera y acepta una conexion en el handler disponible
+        connfd[sig_handler] = accept(listenfd, (SA*) NULL, NULL);
+
+        //Si no hay handler siguiente, salta el error
+        if(connfd[sig_handler] == -1)
+        {
+            printf("Error en accept:\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
 }
 
 void server_conf_socket_Unix(int *sock, struct sockaddr_un *serv_addr, long unsigned int max, char *filename)
@@ -116,4 +168,44 @@ void server_conf_socket_Unix(int *sock, struct sockaddr_un *serv_addr, long unsi
         printf("Error en la escucha\n");
         exit(EXIT_FAILURE);
     }
+}
+
+void* file_writing_thread(void * arg)
+{
+    struct local_writer_arg_struct *arguments = arg;
+    FILE* destFile;
+    
+    destFile = fopen(arguments->Write_File_Name, "w"); 
+    fclose(destFile);
+
+    while(*(arguments->salir) == 0)
+    {
+    }
+
+    return NULL;
+}
+
+int get_cant_hand_disp(int *Handlers, long unsigned int maxHandlers)
+{
+    int amount = 0;
+    for(unsigned long int i = 0; i < maxHandlers; i++)
+    {
+        if(Handlers[i])
+        {
+            amount++;
+        }
+    }
+    return amount;
+}
+
+int get_prim_hand_disp(int *Handlers, long unsigned int maxHandlers)
+{
+    for(unsigned long int i = 0; i < maxHandlers; i++)
+    {
+        if(Handlers[i])
+        {
+            return (int)i;
+        }
+    }
+    return -1;
 }
