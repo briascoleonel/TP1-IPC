@@ -16,6 +16,7 @@
 #include <pthread.h>                //Para funciones thread
 #include <sys/un.h>
 #include <ctype.h>
+#include <netinet/in.h>             //Para struct de in
 
 #define SA struct sockaddr
 #define MAXLINE 4096
@@ -28,7 +29,8 @@ int main(int argc, char *argv[])
 {
     //Declaracion de variables
     int sockfd;          //File descriptor de socket
-    struct sockaddr_un server_addr;     //Struct para especificar server address
+    struct sockaddr_in server_addr;     //Struct para especificar server address
+    short unsigned int iport;           //Para verificar numero de puerto
 
     //Para obtener mensaje por stdin
     char string[MAXLINE];       //Ingresado en stdin
@@ -42,23 +44,32 @@ int main(int argc, char *argv[])
 
     //Llamamos a la verificadora de argumentos
     verificar_argumentos(argc,argv);
-
+    iport = (short unsigned int)atoi(argv[2]);      //Le pasamos el valor por stdin
+    
     //Creacion de socket
     /*
     -UNIX
     -Stream
     -TCP
     */
-    if((sockfd = socket(AF_UNIX,SOCK_STREAM,0))<0)
+    if((sockfd = socket(AF_INET,SOCK_STREAM,0))<0)      //INET
     {
         printf("Fallo al crear socket\n");
         exit(EXIT_FAILURE);
     }
-    
+
     //Handlear el path del archivo del server con el que se quiere conectar
-    memset((char*) &server_addr, '\0', sizeof(server_addr));
-    server_addr.sun_family = AF_UNIX;
-    strcpy(server_addr.sun_path,argv[1]);
+    //"Limpiamos" el address
+    bzero(&server_addr, sizeof(server_addr));       //Establece los primeros n bytes del área de bytes a partir de s en cero
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(iport);        //Convierte los bytes a estandar de bytes de red
+
+    //Crea una estructura de dirección de red
+    if(inet_pton(AF_INET, argv[1], &server_addr.sin_addr) <= 0)
+    {
+        printf("Fallo al convertir direccion IP  a binario\n");
+        exit(EXIT_FAILURE);
+    }
 
     //Conexion con el server
     if(connect(sockfd, (SA*) &server_addr, sizeof(server_addr)) < 0)
@@ -115,24 +126,28 @@ int filename_valido(char *string)
 
 void verificar_argumentos(int argc, char *argv[])
 {
-    //La cantidad de argumentos debe ser 5
-    if(argc != 5)
+    //La cantidad de argumentos debe ser 6
+    if(argc != 6)
     {
         printf("Cantidad de argumentos invalida. Deberian ser 5\n");
         exit(EXIT_FAILURE);
     }
 
-    //Verifica que el nombre del archivo sea correcto
-    if((strlen(argv[1])>MAXLINE) || (filename_valido(argv[1])))
+    //Verifica que el numero de puerto ingresado sea correcto
+    //Que sea un numero y este entre 0 y 65535
+    for(unsigned int i=0; i < strlen(argv[2]); i++)
     {
-        printf("Nombre de archivo invalido\n");
-        exit(EXIT_FAILURE);
+        if((isdigit(argv[2][i]) == 0) || (atoi(argv[2]) <= 0) || (atoi(argv[2]) > 65535))
+        {
+            printf("Debe ingresar un numero de puerto correcto\n");
+            exit(EXIT_FAILURE);
+        }
     }
 
     //Verifica que el mensaje solo tenga letras y numeros
-    for(unsigned int i = 0; strlen(argv[2]); i++)
+    for(unsigned int i = 0; strlen(argv[3]); i++)
     {
-        if(((isdigit(argv[2][i]) == 0) && (isalpha(argv[2][i]) == 0)) || strlen(argv[2]) > MAXLINE)
+        if(((isdigit(argv[3][i]) == 0) && (isalpha(argv[3][i]) == 0)) || strlen(argv[3]) > MAXLINE)
         {
             printf("Debe ingresar un mensaje que solo conste de letras y numeros\n");
             exit(EXIT_FAILURE);
@@ -140,9 +155,9 @@ void verificar_argumentos(int argc, char *argv[])
     }
 
     //Verifica que la cantidad de veces que se quiere enviar el mensaje sea correct
-    for(unsigned int i = 0; strlen(argv[3]); i++)
+    for(unsigned int i = 0; strlen(argv[4]); i++)
     {
-        if((isdigit(argv[3][i]) == 0) || (atoi(argv[3]) <= 0))
+        if((isdigit(argv[4][i]) == 0) || (atoi(argv[4]) <= 0))
         {
             printf("Debe ingresar una cantidad de veces correcta\n");
             exit(EXIT_FAILURE);
@@ -150,9 +165,9 @@ void verificar_argumentos(int argc, char *argv[])
     }
 
     //Verifica que la cantidad de microsegundos a esperar antes de enviar sea correcta
-    for(unsigned int i = 0; strlen(argv[4]); i++)
+    for(unsigned int i = 0; strlen(argv[5]); i++)
     {
-        if((isdigit(argv[4][i]) == 0) || (atoi(argv[4]) <= 0))
+        if((isdigit(argv[5][i]) == 0) || (atoi(argv[5]) <= 0))
         {
             printf("Debe ingresar una cantidad correcta\n");
             exit(EXIT_FAILURE);

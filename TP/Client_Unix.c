@@ -24,7 +24,7 @@
 void verificar_argumentos(int argc, char *argv[]);      //Comprobar argumentos
 int filename_valido(char *string);                      //Comprobar si el filename es valido
 
-int main(int argc, char *argv)
+int main(int argc, char *argv[])
 {
     //Declaracion de variables
     int sockfd;          //File descriptor de socket
@@ -35,6 +35,11 @@ int main(int argc, char *argv)
     char aux[MAXLINE];      
     char fin_de_msg[7] = "\n";
 
+    long unsigned int veces_enviado;
+    long unsigned int cont = 0;
+    long unsigned int cant_bytes;
+    long int escr_ret_val;
+
     //Llamamos a la verificadora de argumentos
     verificar_argumentos(argc,argv);
 
@@ -44,7 +49,7 @@ int main(int argc, char *argv)
     -Stream
     -TCP
     */
-    if((sockfd = socekt(AF_UNIX,SOCK_STREAM,0))<0)
+    if((sockfd = socket(AF_UNIX,SOCK_STREAM,0))<0)
     {
         printf("Fallo al crear socket\n");
         exit(EXIT_FAILURE);
@@ -62,8 +67,39 @@ int main(int argc, char *argv)
         exit(EXIT_FAILURE);
     }
 
+    //Mensaje recibido por stdin
+    strcpy(string,argv[2]);
+    //Veces que se va a enviar
+    veces_enviado = (unsigned long int)atoi(argv[3]);
 
-    
+    while(1)
+    {
+        if(cont != veces_enviado)   //Controlamos que se envie las veces requeridas
+        {
+            //contruccion del mensaje
+            string[strcspn(string,"\n")] = 0;       //Saca el \n
+            strcpy(aux,string);                 //Guarda en el aux
+            strcat(string,fin_de_msg);          //Concatena el string con fin_de_msg
+
+            //Envio del mensaje
+            cant_bytes = strlen(string);        //Guarda la cantidad de bytes
+            escr_ret_val = write(sockfd,string, cant_bytes);        //Devuelve cantidad de bytes escritos o -1 si falla
+            //Comprobamos que no devuelva -1 o haya llegado a la cantidad de bytes    
+            if((escr_ret_val == -1) || ((long unsigned int)escr_ret_val != cant_bytes))
+            {
+                printf("Fallo al enviar mensaje\n");
+                exit(EXIT_FAILURE);
+            }
+            cont++;     //Aumenta el contador
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    close(sockfd);              //Cierra el socket
+    exit(EXIT_SUCCESS);   
 }
 
 int filename_valido(char *string) 
