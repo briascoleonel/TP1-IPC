@@ -14,7 +14,6 @@
 #include <netdb.h>
 #include <stdarg.h>
 #include <pthread.h>                //Para funciones thread
-#include <sys/un.h>
 #include <ctype.h>
 #include <netinet/in.h>             //Para struct de in
 
@@ -29,7 +28,7 @@ int main(int argc, char *argv[])
 {
     //Declaracion de variables
     int sockfd;          //File descriptor de socket
-    struct sockaddr_in server_addr;     //Struct para especificar server address
+    struct sockaddr_in6 server_addr;     //Struct para especificar server address
     short unsigned int iport;           //Para verificar numero de puerto
 
     //Para obtener mensaje por stdin
@@ -52,7 +51,7 @@ int main(int argc, char *argv[])
     -Stream
     -TCP
     */
-    if((sockfd = socket(AF_INET,SOCK_STREAM,0))<0)      //INET
+    if((sockfd = socket(AF_INET6,SOCK_STREAM,0))<0)      //INET
     {
         printf("Fallo al crear socket\n");
         exit(EXIT_FAILURE);
@@ -61,11 +60,11 @@ int main(int argc, char *argv[])
     //Handlear el path del archivo del server con el que se quiere conectar
     //"Limpiamos" el address
     bzero(&server_addr, sizeof(server_addr));       //Establece los primeros n bytes del área de bytes a partir de s en cero
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(iport);        //Convierte los bytes a estandar de bytes de red
+    server_addr.sin6_family = AF_INET6;
+    server_addr.sin6_port = htons(iport);        //Convierte los bytes a estandar de bytes de red
 
     //Crea una estructura de dirección de red
-    if(inet_pton(AF_INET, argv[1], &server_addr.sin_addr) <= 0)
+    if(inet_pton(AF_INET6, argv[1], &server_addr.sin6_addr) <= 0)
     {
         printf("Fallo al convertir direccion IP  a binario\n");
         exit(EXIT_FAILURE);
@@ -79,9 +78,9 @@ int main(int argc, char *argv[])
     }
 
     //Mensaje recibido por stdin
-    strcpy(string,argv[2]);
+    strcpy(string,argv[4]);
     //Veces que se va a enviar
-    veces_enviado = (unsigned long int)atoi(argv[3]);
+    veces_enviado = (unsigned long int)atoi(argv[5]);
 
     while(1)
     {
@@ -127,7 +126,7 @@ int filename_valido(char *string)
 void verificar_argumentos(int argc, char *argv[])
 {
     //La cantidad de argumentos debe ser 6
-    if(argc != 6)
+    if(argc != 7)
     {
         printf("Cantidad de argumentos invalida. Deberian ser 5\n");
         exit(EXIT_FAILURE);
@@ -154,10 +153,19 @@ void verificar_argumentos(int argc, char *argv[])
         }
     }
 
-    //Verifica que la cantidad de veces que se quiere enviar el mensaje sea correct
-    for(unsigned int i = 0; strlen(argv[4]); i++)
+    for(unsigned int i = 0; i < strlen(argv[4]); i++)
     {
-        if((isdigit(argv[4][i]) == 0) || (atoi(argv[4]) <= 0))
+        if(((isdigit(argv[4][i]) == 0) && (isalpha(argv[4][i]) == 0)) || strlen(argv[4]) > MAXLINE)
+        {
+            printf("Debe ingresar un mensaje correcto\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    //Verifica que la cantidad de veces que se quiere enviar el mensaje sea correct
+    for(unsigned int i = 0; strlen(argv[5]); i++)
+    {
+        if((isdigit(argv[5][i]) == 0) || (atoi(argv[5]) <= 0))
         {
             printf("Debe ingresar una cantidad de veces correcta\n");
             exit(EXIT_FAILURE);
@@ -165,9 +173,9 @@ void verificar_argumentos(int argc, char *argv[])
     }
 
     //Verifica que la cantidad de microsegundos a esperar antes de enviar sea correcta
-    for(unsigned int i = 0; strlen(argv[5]); i++)
+    for(unsigned int i = 0; strlen(argv[6]); i++)
     {
-        if((isdigit(argv[5][i]) == 0) || (atoi(argv[5]) <= 0))
+        if((isdigit(argv[6][i]) == 0) || (atoi(argv[6]) <= 0))
         {
             printf("Debe ingresar una cantidad correcta\n");
             exit(EXIT_FAILURE);

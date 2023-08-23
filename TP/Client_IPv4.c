@@ -23,7 +23,6 @@
 
 //Funciones
 void verificar_argumentos(int argc, char *argv[]);      //Comprobar argumentos
-int filename_valido(char *string);                      //Comprobar si el filename es valido
 
 int main(int argc, char *argv[])
 {
@@ -79,9 +78,9 @@ int main(int argc, char *argv[])
     }
 
     //Mensaje recibido por stdin
-    strcpy(string,argv[2]);
+    strcpy(string,argv[3]);
     //Veces que se va a enviar
-    veces_enviado = (unsigned long int)atoi(argv[3]);
+    veces_enviado = (unsigned long int)atoi(argv[4]);
 
     while(1)
     {
@@ -113,17 +112,6 @@ int main(int argc, char *argv[])
     exit(EXIT_SUCCESS);   
 }
 
-int filename_valido(char *string) 
-{
-    //Controla la existencia de los siguientes caracteres: \/:*?"<>|
-    if((strchr(string,(int)'/') != NULL) || (strchr(string,(int)':') != NULL) || (strchr(string,(int)'*') != NULL) || (strchr(string,(int)'?') != NULL) || 
-    (strchr(string,(int)'<') != NULL) || (strchr(string,(int)'>') != NULL) || (strchr(string,(int)'|') != NULL))
-    {
-        return 0;
-    }
-    return 1;
-}
-
 void verificar_argumentos(int argc, char *argv[])
 {
     //La cantidad de argumentos debe ser 6
@@ -145,7 +133,7 @@ void verificar_argumentos(int argc, char *argv[])
     }
 
     //Verifica que el mensaje solo tenga letras y numeros
-    for(unsigned int i = 0; strlen(argv[3]); i++)
+    for(unsigned int i = 0; i < strlen(argv[3]); i++)
     {
         if(((isdigit(argv[3][i]) == 0) && (isalpha(argv[3][i]) == 0)) || strlen(argv[3]) > MAXLINE)
         {
@@ -155,7 +143,7 @@ void verificar_argumentos(int argc, char *argv[])
     }
 
     //Verifica que la cantidad de veces que se quiere enviar el mensaje sea correct
-    for(unsigned int i = 0; strlen(argv[4]); i++)
+    for(unsigned int i = 0;i < strlen(argv[4]); i++)
     {
         if((isdigit(argv[4][i]) == 0) || (atoi(argv[4]) <= 0))
         {
@@ -165,7 +153,7 @@ void verificar_argumentos(int argc, char *argv[])
     }
 
     //Verifica que la cantidad de microsegundos a esperar antes de enviar sea correcta
-    for(unsigned int i = 0; strlen(argv[5]); i++)
+    for(unsigned int i = 0;i < strlen(argv[5]); i++)
     {
         if((isdigit(argv[5][i]) == 0) || (atoi(argv[5]) <= 0))
         {
