@@ -1,10 +1,7 @@
 #include "Common.h"
 
 void server_conf_socket_INET(int *sock, struct sockaddr_in *serv_addr, int iport, long unsigned int max, char *string_addr);
-void* file_writing_thread(void * arg);
-int get_cant_hand_disp(int *Handlers, long unsigned int maxHandlers);
-int get_prim_hand_disp(int *Handlers, long unsigned int maxHandlers);
-void ocupar_handler(int *Handlers, int i, pthread_mutex_t *lock);
+
 
 int main(void *arg)
 {
