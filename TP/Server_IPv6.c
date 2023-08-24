@@ -1,17 +1,17 @@
 #include "Common.h"
 
-void server_conf_socket_Unix(int *sock, struct sockaddr_un *serv_addr, long unsigned int max, char *filename);
+void server_conf_socket_INET(int *sock, struct sockaddr_in *serv_addr, int iport, long unsigned int max, char *string_addr);
 void* file_writing_thread(void * arg);
+int get_cant_hand_disp(int *Handlers, long unsigned int maxHandlers);
+int get_prim_hand_disp(int *Handlers, long unsigned int maxHandlers);
+void ocupar_handler(int *Handlers, int i, pthread_mutex_t *lock);
 
-//Funcion principal de servidor tipo UNIX
-
-//void *Unix_Server(void *arg)
 int main(void *arg)
 {
-    struct UNIX_arg_struct *argumentos = arg;       //Struct para argumentos
+    struct INET_arg_struct *argumentos = arg;       //Struct para argumentos
     int listenfd;       //FD para escuchar conexiones
     int *connfd;        //FD para el socket una vez ocurra el accept
-    struct sockaddr_un serv_addr;       //Struct para pasar direccion
+    struct sockaddr_in serv_addr;       //Struct para pasar direccion
 
     connfd = malloc((unsigned long int) argumentos->max_clientes * sizeof(int));
 
@@ -36,12 +36,12 @@ int main(void *arg)
     pthread_t file_writer_thread;
     struct local_writer_arg_struct file_writer_arg;
 
-    strcpy(file_writer_arg.Write_File_Name, argumentos->UNIX_Write_File_Name);
+    strcpy(file_writer_arg.Write_File_Name, argumentos->INET_Write_File_Name);
     file_writer_arg.lock = &lock;
     file_writer_arg.salir = argumentos->salir;
 
     //Para configurar el socket se utiliza esta funcion
-    server_conf_socket_Unix(&listenfd, &serv_addr, (unsigned long int)argumentos->max_clientes, argumentos->UNIX_File_Name);
+    server_conf_socket_INET(&listenfd, &serv_addr, argumentos->IPV4_iport, (unsigned long int)argumentos->max_clientes, argumentos->IPV4_Server_Address);
 
     //Iniciamos todos los handlers como disponibles
     for(int i=0; i<argumentos->max_clientes; i++)
@@ -141,22 +141,21 @@ int main(void *arg)
 
 }
 
-void server_conf_socket_Unix(int *sock, struct sockaddr_un *serv_addr, long unsigned int max, char *filename)
+void server_conf_socket_INET(int *sock, struct sockaddr_in *serv_addr, int iport, long unsigned int max, char *string_addr)
 {
     //Creacion de socket
-    if((*(sock) = socket(AF_UNIX,SOCK_STREAM,0)) < 0)
+    if((*(sock) = socket(AF_INET,SOCK_STREAM,0)) < 0)
     {
         //Imprime error en caso de que asi sea
         printf("Error al crear el socket para el servidor\n");
         exit(EXIT_FAILURE);
     }
 
-    unlink(filename);       //Borra el nombre y el file al que se refiere
-
     //Matchea el path del archivo del server con el que se quiere conectar
     bzero(serv_addr, sizeof(*serv_addr));
-    serv_addr->sun_family = AF_UNIX;
-    strcpy(serv_addr->sun_path, filename);
+    serv_addr->sin_family = AF_INET;
+    serv_addr->sin_addr.s_addr = inet_addr(string_addr);
+    serv_addr->sin_port = htons((unsigned short int)iport);
 
     //Bindea con la direccion especificada
     if((bind(*(sock),(SA*) serv_addr, sizeof(*serv_addr))) < 0)
@@ -173,17 +172,8 @@ void server_conf_socket_Unix(int *sock, struct sockaddr_un *serv_addr, long unsi
     }
 }
 
-void* file_writing_thread(void * arg)
-{
-    struct local_writer_arg_struct *arguments = arg;
-    FILE* destFile;
-    
-    destFile = fopen(arguments->Write_File_Name, "w"); 
-    fclose(destFile);
 
-    while(*(arguments->salir) == 0)
-    {
-    }
 
-    return NULL;
-}
+
+
+
