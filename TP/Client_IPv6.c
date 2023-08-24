@@ -1,28 +1,7 @@
-#include <sys/socket.h> /*Definiciones basicas de sockets*/
-#include <sys/types.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <stdarg.h>  /*Para funciones con argumentos var*/
-#include <errno.h>
-#include <fcntl.h>
-#include <sys/time.h>
-#include <sys/ioctl.h>
-#include <netdb.h>
-#include <stdarg.h>
-#include <pthread.h>                //Para funciones thread
-#include <ctype.h>
-#include <netinet/in.h>             //Para struct de in
-
-#define SA struct sockaddr
-#define MAXLINE 4096
+#include "Common.h"
 
 //Funciones
 void verificar_argumentos(int argc, char *argv[]);      //Comprobar argumentos
-int filename_valido(char *string);                      //Comprobar si el filename es valido
 
 int main(int argc, char *argv[])
 {
@@ -70,6 +49,8 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    server_addr.sin6_scope_id = if_nametoindex(argv[3]); //returns the index of the network interface corresponding to the name ifname
+
     //Conexion con el server
     if(connect(sockfd, (SA*) &server_addr, sizeof(server_addr)) < 0)
     {
@@ -112,20 +93,9 @@ int main(int argc, char *argv[])
     exit(EXIT_SUCCESS);   
 }
 
-int filename_valido(char *string) 
-{
-    //Controla la existencia de los siguientes caracteres: \/:*?"<>|
-    if((strchr(string,(int)'/') != NULL) || (strchr(string,(int)':') != NULL) || (strchr(string,(int)'*') != NULL) || (strchr(string,(int)'?') != NULL) || 
-    (strchr(string,(int)'<') != NULL) || (strchr(string,(int)'>') != NULL) || (strchr(string,(int)'|') != NULL))
-    {
-        return 0;
-    }
-    return 1;
-}
-
 void verificar_argumentos(int argc, char *argv[])
 {
-    //La cantidad de argumentos debe ser 6
+    //La cantidad de argumentos debe ser 7
     if(argc != 7)
     {
         printf("Cantidad de argumentos invalida. Deberian ser 5\n");
@@ -143,8 +113,8 @@ void verificar_argumentos(int argc, char *argv[])
         }
     }
 
-    //Verifica que el mensaje solo tenga letras y numeros
-    for(unsigned int i = 0; strlen(argv[3]); i++)
+    //Verifica que la interfaz conste de letras y digitos
+    for(unsigned int i = 0;i < strlen(argv[3]); i++)
     {
         if(((isdigit(argv[3][i]) == 0) && (isalpha(argv[3][i]) == 0)) || strlen(argv[3]) > MAXLINE)
         {
@@ -153,6 +123,7 @@ void verificar_argumentos(int argc, char *argv[])
         }
     }
 
+    //Verifica que el mensaje solo tenga letras y numeros
     for(unsigned int i = 0; i < strlen(argv[4]); i++)
     {
         if(((isdigit(argv[4][i]) == 0) && (isalpha(argv[4][i]) == 0)) || strlen(argv[4]) > MAXLINE)
@@ -163,7 +134,7 @@ void verificar_argumentos(int argc, char *argv[])
     }
 
     //Verifica que la cantidad de veces que se quiere enviar el mensaje sea correct
-    for(unsigned int i = 0; strlen(argv[5]); i++)
+    for(unsigned int i = 0;i < strlen(argv[5]); i++)
     {
         if((isdigit(argv[5][i]) == 0) || (atoi(argv[5]) <= 0))
         {
@@ -173,7 +144,7 @@ void verificar_argumentos(int argc, char *argv[])
     }
 
     //Verifica que la cantidad de microsegundos a esperar antes de enviar sea correcta
-    for(unsigned int i = 0; strlen(argv[6]); i++)
+    for(unsigned int i = 0;i < strlen(argv[6]); i++)
     {
         if((isdigit(argv[6][i]) == 0) || (atoi(argv[6]) <= 0))
         {
