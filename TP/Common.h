@@ -51,20 +51,20 @@ struct local_writer_arg_struct {
     int *salir;
 };
 
-struct INET_arg_struct {
+struct IPv4_arg_struct {
     char IPV4_Server_Address[MAXLINE];
     short unsigned int IPV4_iport;
-    char INET_Write_File_Name[MAXLINE];
+    char IPv4_Write_File_Name[MAXLINE];
     pthread_mutex_t *global_lock;
     int max_clientes;
     int *salir;
 };
 
-struct INET6_arg_struct {
+struct IPv6_arg_struct {
     char IPV6_Server_Address[MAXLINE];
     short unsigned int IPV6_iport;
     char IPV6_Interface[MAXLINE];
-    char INET6_Write_File_Name[MAXLINE];
+    char IPv6_Write_File_Name[MAXLINE];
     pthread_mutex_t *global_lock;
     int max_clientes;
     int *salir;
