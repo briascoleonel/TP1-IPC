@@ -2,7 +2,6 @@
 
 //Funciones
 void verificar_argumentos(int argc, char *argv[]);      //Comprobar argumentos
-int filename_valido(char *string);                      //Comprobar si el filename es valido
 
 int main(int argc, char *argv[])
 {
@@ -80,17 +79,6 @@ int main(int argc, char *argv[])
 
     close(sockfd);              //Cierra el socket
     exit(EXIT_SUCCESS);   
-}
-
-int filename_valido(char *string) 
-{
-    //Controla la existencia de los siguientes caracteres: \/:*?"<>|
-    if((strchr(string,(int)'/') != NULL) || (strchr(string,(int)':') != NULL) || (strchr(string,(int)'*') != NULL) || (strchr(string,(int)'?') != NULL) || 
-    (strchr(string,(int)'<') != NULL) || (strchr(string,(int)'>') != NULL) || (strchr(string,(int)'|') != NULL))
-    {
-        return 0;
-    }
-    return 1;
 }
 
 void verificar_argumentos(int argc, char *argv[])

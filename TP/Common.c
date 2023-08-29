@@ -56,3 +56,14 @@ int get_cant_hand_disp(int *Handlers, long unsigned int maxHandlers)
     }
     return amount;
 }
+
+int filename_valido(char *string) 
+{
+    //Controla la existencia de los siguientes caracteres: \/:*?"<>|
+    if((strchr(string,(int)'/') != NULL) || (strchr(string,(int)':') != NULL) || (strchr(string,(int)'*') != NULL) || (strchr(string,(int)'?') != NULL) || 
+    (strchr(string,(int)'<') != NULL) || (strchr(string,(int)'>') != NULL) || (strchr(string,(int)'|') != NULL))
+    {
+        return 0;
+    }
+    return 1;
+}

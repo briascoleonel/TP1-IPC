@@ -75,4 +75,7 @@ struct IPv6_arg_struct {
     int *salir;
 };
 
+int filename_valido(char *string); 
+
+
 #endif 
