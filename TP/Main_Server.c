@@ -18,6 +18,8 @@ int main(int argc, char*argv[])
     char salir[MAXLINE];
     int salir_todos = 0;
 
+    verificar_argumentos(argc,argv);
+
     strcpy(UNIX_argumentos.UNIX_File_Name,argv[4]);
     strcpy(UNIX_argumentos.UNIX_Write_File_Name,argv[5]);
     UNIX_argumentos.global_lock = &global_lock;

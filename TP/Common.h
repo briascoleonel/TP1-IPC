@@ -27,6 +27,7 @@
 #include "Server_IPv4.h"
 #include "Server_IPv6.h"
 #include "File_Writing_Thread.h"
+#include "Verificar_Argumentos_Server.h"
 
 #define SA struct sockaddr
 #define MAXLINE 4096
@@ -76,6 +77,9 @@ struct IPv6_arg_struct {
 };
 
 int filename_valido(char *string); 
+int dir_IPv4_valida(char *ipAddr);
+int dir_IPv6_valida(char *ipAddr);
+
 
 
 #endif 

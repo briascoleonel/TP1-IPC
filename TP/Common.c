@@ -67,3 +67,17 @@ int filename_valido(char *string)
     }
     return 1;
 }
+
+int dir_IPv4_valida(char *ipAddr)
+{
+    struct sockaddr_in sa;
+    int result = inet_pton(AF_INET,ipAddr, &(sa.sin_addr));
+    return result != 0;
+}
+
+int dir_IPv6_valida(char *ipAddr)
+{
+    struct sockaddr_in6 sa;
+    int result = inet_pton(AF_INET6,ipAddr, &(sa.sin6_addr));
+    return result != 0;
+}
