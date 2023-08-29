@@ -1,14 +1,14 @@
 #include "Common.h"
 
-void server_conf_socket_INET(int *sock, struct sockaddr_in *serv_addr, int iport, long unsigned int max, char *string_addr);
+void server_conf_socket_INET6(int *sock, struct sockaddr_in6 *serv_addr, int iport, long unsigned int max, char *string_addr, char *interface_name);
 void* file_writing_thread(void * arg);
 
 int main(void *arg)
 {
-    struct INET_arg_struct *argumentos = arg;       //Struct para argumentos
+    struct INET6_arg_struct *argumentos = arg;       //Struct para argumentos
     int listenfd;       //FD para escuchar conexiones
     int *connfd;        //FD para el socket una vez ocurra el accept
-    struct sockaddr_in serv_addr;       //Struct para pasar direccion
+    struct sockaddr_in6 serv_addr;       //Struct para pasar direccion
 
     connfd = malloc((unsigned long int) argumentos->max_clientes * sizeof(int));
 
@@ -33,12 +33,12 @@ int main(void *arg)
     pthread_t file_writer_thread;
     struct local_writer_arg_struct file_writer_arg;
 
-    strcpy(file_writer_arg.Write_File_Name, argumentos->INET_Write_File_Name);
+    strcpy(file_writer_arg.Write_File_Name, argumentos->INET6_Write_File_Name);
     file_writer_arg.lock = &lock;
     file_writer_arg.salir = argumentos->salir;
 
     //Para configurar el socket se utiliza esta funcion
-    server_conf_socket_INET(&listenfd, &serv_addr, argumentos->IPV4_iport, (unsigned long int)argumentos->max_clientes, argumentos->IPV4_Server_Address);
+    server_conf_socket_INET6(&listenfd, &serv_addr, argumentos->IPV6_iport, (unsigned long int)argumentos->max_clientes, argumentos->IPV6_Server_Address, argumentos->IPV6_Interface);
 
     //Iniciamos todos los handlers como disponibles
     for(int i=0; i<argumentos->max_clientes; i++)
@@ -138,10 +138,10 @@ int main(void *arg)
 
 }
 
-void server_conf_socket_INET(int *sock, struct sockaddr_in *serv_addr, int iport, long unsigned int max, char *string_addr)
+void server_conf_socket_INET6(int *sock, struct sockaddr_in6 *serv_addr, int iport, long unsigned int max, char *string_addr, char *interface_name)
 {
     //Creacion de socket
-    if((*(sock) = socket(AF_INET,SOCK_STREAM,0)) < 0)
+    if((*(sock) = socket(AF_INET6,SOCK_STREAM,0)) < 0)
     {
         //Imprime error en caso de que asi sea
         printf("Error al crear el socket para el servidor\n");
@@ -150,9 +150,14 @@ void server_conf_socket_INET(int *sock, struct sockaddr_in *serv_addr, int iport
 
     //Matchea el path del archivo del server con el que se quiere conectar
     bzero(serv_addr, sizeof(*serv_addr));
-    serv_addr->sin_family = AF_INET;
-    serv_addr->sin_addr.s_addr = inet_addr(string_addr);
-    serv_addr->sin_port = htons((unsigned short int)iport);
+    serv_addr->sin6_family = AF_INET6;
+    if(inet_pton(AF_INET6, string_addr, &(serv_addr->sin6_addr)) != 1)
+    {
+        printf("Direccion mal\n");
+        exit(EXIT_FAILURE);
+    }
+    serv_addr->sin6_port = htons((unsigned short int)iport);
+    serv_addr->sin6_scope_id = if_nametoindex(interface_name);
 
     //Bindea con la direccion especificada
     if((bind(*(sock),(SA*) serv_addr, sizeof(*serv_addr))) < 0)

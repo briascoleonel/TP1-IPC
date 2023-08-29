@@ -60,4 +60,14 @@ struct INET_arg_struct {
     int *salir;
 };
 
+struct INET6_arg_struct {
+    char IPV6_Server_Address[MAXLINE];
+    short unsigned int IPV6_iport;
+    char IPV6_Interface[MAXLINE];
+    char INET6_Write_File_Name[MAXLINE];
+    pthread_mutex_t *global_lock;
+    int max_clientes;
+    int *salir;
+};
+
 #endif 
