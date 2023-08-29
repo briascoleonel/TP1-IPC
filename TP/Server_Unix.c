@@ -1,12 +1,11 @@
 #include "Common.h"
 
 void server_conf_socket_Unix(int *sock, struct sockaddr_un *serv_addr, long unsigned int max, char *filename);
-void* file_writing_thread(void * arg);
 
 //Funcion principal de servidor tipo UNIX
 
 //void *Unix_Server(void *arg)
-int main(void *arg)
+void *Server_Unix_codigo(void *arg)
 {
     struct UNIX_arg_struct *argumentos = arg;       //Struct para argumentos
     int listenfd;       //FD para escuchar conexiones
@@ -51,7 +50,7 @@ int main(void *arg)
 
     //Crea y lanza un nuevo hilo que escribe el archivo local
     //Usa la funcion file_writing_thread que pasa un archivo que se abre de acuerdo a los argumentos que le pasamos
-    pthread_create(&file_writer_thread,NULL,file_writing_thread,&file_writer_arg);
+    pthread_create(&file_writer_thread,NULL,File_Writing_Thread_codigo,&file_writer_arg);
 
     //Esperando conexiones y lanzando hilos
     while(*(argumentos->salir) == 0)
@@ -173,17 +172,3 @@ void server_conf_socket_Unix(int *sock, struct sockaddr_un *serv_addr, long unsi
     }
 }
 
-void* file_writing_thread(void * arg)
-{
-    struct local_writer_arg_struct *arguments = arg;
-    FILE* destFile;
-    
-    destFile = fopen(arguments->Write_File_Name, "w"); 
-    fclose(destFile);
-
-    while(*(arguments->salir) == 0)
-    {
-    }
-
-    return NULL;
-}

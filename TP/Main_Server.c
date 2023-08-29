@@ -10,6 +10,7 @@ int main(int argc, char*argv[])
     struct IPv4_arg_struct IPv4_argumentos;
     struct IPv6_arg_struct IPv6_argumentos;
 
+    pthread_t Global_File_Writing_Thread;
     struct local_writer_arg_struct global_argumentos;
 
     pthread_mutex_t global_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -43,6 +44,22 @@ int main(int argc, char*argv[])
     global_argumentos.salir = &salir_todos;
 
     //Tenemos que cambiar las funciones de server
-    pthread_create(UNIX_Server_Thread,NULL,UNI)
+    pthread_create(&Global_File_Writing_Thread,NULL,File_Writing_Thread_codigo, &global_argumentos);
+    pthread_create(&UNIX_Server_Thread,NULL,Server_Unix_codigo, &UNIX_argumentos);
+    pthread_create(&IPv4_Server_Thread,NULL,Server_IPv4_codigo, &IPv4_argumentos);
+    pthread_create(&IPv6_Server_Thread,NULL,Server_IPv6_codigo, &IPv6_argumentos);
+
+    while(!salir_todos)
+    {
+        printf("Ingrese -salir- para cerrar el server\n");
+        if(strcmp(salir,"salir"))
+        {
+            salir_todos = 1;
+        }
+        else
+        {
+            printf("No ha ingresado salir. Ha ingresado: %s\n",salir);
+        }
+    }
 
 }

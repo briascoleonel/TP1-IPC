@@ -18,6 +18,12 @@
 #include <netinet/in.h>             //Para struct de in
 #include <net/if.h>                 //Network interfaces
 
+#include "Server_Unix.h"
+#include "Server_IPv4.h"
+#include "Server_IPv6.h"
+#include "File_Writing_Thread.h"
+
+
 
 void ocupar_handler(int *Handlers, int i, pthread_mutex_t *lock)
 {

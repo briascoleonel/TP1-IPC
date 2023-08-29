@@ -23,6 +23,11 @@
 #include <net/if.h>                 //Network interfaces
 #include <sys/un.h>
 
+#include "Server_Unix.h"
+#include "Server_IPv4.h"
+#include "Server_IPv6.h"
+#include "File_Writing_Thread.h"
+
 #define SA struct sockaddr
 #define MAXLINE 4096
 
