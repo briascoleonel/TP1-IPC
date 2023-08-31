@@ -8,6 +8,7 @@ void* Task(void *arg)
     char aux[MAXLINE];
     char rawmsg[MAXLINE];
     long int bytes_lect;
+    unsigned long int conv_bytes_lect;
 
     while(argumentos->thread_salida == 0 && *(argumentos->salir) == 0)
     {
@@ -32,6 +33,22 @@ void* Task(void *arg)
         }
         if(!argumentos->thread_salida && *(argumentos->salir) == 0)
         {
+            if(bytes_lect > 0)
+            {
+                conv_bytes_lect = (unsigned long int)bytes_lect;
+                if(conv_bytes_lect > 0)
+                {
+                    pthread_mutex_lock(argumentos->lock);
+                    *(argumentos->total_bytes_recv_local) += conv_bytes_lect;
+                    *(argumentos->ult_bytes_recv_local) += conv_bytes_lect;
+                    pthread_mutex_unlock(argumentos->lock);
+                    pthread_mutex_lock(argumentos->global_lock);
+                    *(argumentos->total_bytes_recv_global) += conv_bytes_lect;
+                    *(argumentos->ult_bytes_recv_global) += conv_bytes_lect;
+                    pthread_mutex_unlock(argumentos->global_lock);
+                    conv_bytes_lect = 0;
+                }
+            }
             while(bytes_lect > 0)
             {
                 if(recvline[bytes_lect-1] == '\n')

@@ -44,6 +44,18 @@ struct local_threads_arg_struct {
     pthread_mutex_t *lock;
     pthread_mutex_t *global_lock;
     int *salir;
+    long unsigned int *total_bytes_recv_local;
+    long unsigned int *ult_bytes_recv_local;
+    long unsigned int *total_bytes_recv_global;
+    long unsigned int *ult_bytes_recv_global;
+};
+
+struct local_writer_arg_struct {
+    char Write_File_Name[MAXLINE];
+    pthread_mutex_t *lock;
+    int *salir;
+    long unsigned int *bytes_recv_total;
+    long unsigned int *bytes_recv_local;
 };
 
 struct UNIX_arg_struct {
@@ -52,12 +64,8 @@ struct UNIX_arg_struct {
     pthread_mutex_t *global_lock;
     int max_clientes;
     int *salir;
-};
-
-struct local_writer_arg_struct {
-    char Write_File_Name[MAXLINE];
-    pthread_mutex_t *lock;
-    int *salir;
+    long unsigned int *total_bytes_recv_global;
+    long unsigned int *ult_bytes_recv_global;
 };
 
 struct IPv4_arg_struct {
@@ -67,6 +75,8 @@ struct IPv4_arg_struct {
     pthread_mutex_t *global_lock;
     int max_clientes;
     int *salir;
+    long unsigned int *total_bytes_recv_global;
+    long unsigned int *ult_bytes_recv_global;
 };
 
 struct IPv6_arg_struct {
@@ -77,11 +87,16 @@ struct IPv6_arg_struct {
     pthread_mutex_t *global_lock;
     int max_clientes;
     int *salir;
+    long unsigned int *total_bytes_recv_global;
+    long unsigned int *ult_bytes_recv_global;
 };
 
 int filename_valido(char *string); 
 int dir_IPv4_valida(char *ipAddr);
 int dir_IPv6_valida(char *ipAddr);
+int get_prim_hand_disp(int *Handlers, long unsigned int maxHandlers);
+int get_cant_hand_disp(int *Handlers, long unsigned int maxHandlers);
+void ocupar_handler(int *Handlers, int i, pthread_mutex_t *lock);
 void liberar_Handler(int *Handlers, int i, pthread_mutex_t *lock);
 
 
