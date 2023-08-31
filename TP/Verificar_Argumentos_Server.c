@@ -1,5 +1,19 @@
 #include "Common.h"
 
+/*
+argv[1]  = Dir IPv4
+argv[2]  = Puerto IPv4
+argv[3]  = Log file IPv4 
+argv[4]  = File UNIX
+argv[5]  = Log file UNIX
+argv[6]  = Dir IPv6
+argv[7]  = Puerto IPv6
+argv[8]  = Interfaz IPv6 
+argv[9]  = Log file IPv6
+argv[10] = Cantidad de Clientes
+argv[11] = Log file global
+*/
+
 void verificar_argumentos(int argc, char *argv[])
 {
     //Cantidad de argumentos a pasar tiene que ser igual a 12

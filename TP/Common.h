@@ -28,6 +28,9 @@
 #include "Server_IPv6.h"
 #include "File_Writing_Thread.h"
 #include "Verificar_Argumentos_Server.h"
+#include "Config_Socket_Unix.h"
+#include "Config_Socket_IPv4.h"
+#include "Config_Socket_IPv6.h"
 
 #define SA struct sockaddr
 #define MAXLINE 4096

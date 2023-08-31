@@ -22,7 +22,9 @@
 #include "Server_IPv4.h"
 #include "Server_IPv6.h"
 #include "File_Writing_Thread.h"
-
+#include "Config_Socket_Unix.h"
+#include "Config_Socket_IPv4.h"
+#include "Config_Socket_IPv6.h"
 
 
 void ocupar_handler(int *Handlers, int i, pthread_mutex_t *lock)
