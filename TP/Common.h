@@ -38,8 +38,8 @@
 //Struct que vamos a utilizar
 struct local_threads_arg_struct {
     int id;
-    int *ConnSocket;
-    int ExitThread;
+    int *socket_conx;
+    int thread_salida;
     int *Handlers;
     pthread_mutex_t *lock;
     pthread_mutex_t *global_lock;
@@ -82,6 +82,8 @@ struct IPv6_arg_struct {
 int filename_valido(char *string); 
 int dir_IPv4_valida(char *ipAddr);
 int dir_IPv6_valida(char *ipAddr);
+void liberar_Handler(int *Handlers, int i, pthread_mutex_t *lock);
+
 
 
 

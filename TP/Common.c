@@ -83,3 +83,10 @@ int dir_IPv6_valida(char *ipAddr)
     int result = inet_pton(AF_INET6,ipAddr, &(sa.sin6_addr));
     return result != 0;
 }
+
+void liberar_Handler(int *Handlers, int i, pthread_mutex_t *lock)
+{
+    pthread_mutex_lock(lock);
+    Handlers[i] = 1;
+    pthread_mutex_unlock(lock);
+}
