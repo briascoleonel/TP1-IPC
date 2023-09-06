@@ -87,8 +87,8 @@ int main(void *arg)
         }
 
         handler_thread_args[sig_handler].id = sig_handler;
-        handler_thread_args[sig_handler].ConnSocket = &(connfd[sig_handler]);
-        handler_thread_args[sig_handler].ExitThread = 0;
+        handler_thread_args[sig_handler].socket_conx = &(connfd[sig_handler]);
+        handler_thread_args[sig_handler].thread_salida = 0;
         handler_thread_args[sig_handler].Handlers = handlers_disp;
         handler_thread_args[sig_handler].lock = &lock;
         handler_thread_args[sig_handler].global_lock = argumentos->global_lock;
