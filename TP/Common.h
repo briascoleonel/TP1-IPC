@@ -31,6 +31,9 @@
 #include "Config_Socket_Unix.h"
 #include "Config_Socket_IPv4.h"
 #include "Config_Socket_IPv6.h"
+#include "Handler.h"
+#include "Contador.h"
+
 
 #define SA struct sockaddr
 #define MAXLINE 4096
@@ -48,6 +51,7 @@ struct local_threads_arg_struct {
     long unsigned int *ult_bytes_recv_local;
     long unsigned int *total_bytes_recv_global;
     long unsigned int *ult_bytes_recv_global;
+    int segs;
 };
 
 struct local_writer_arg_struct {
