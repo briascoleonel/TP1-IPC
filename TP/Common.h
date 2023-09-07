@@ -59,7 +59,7 @@ struct local_writer_arg_struct {
     pthread_mutex_t *lock;
     int *salir;
     long unsigned int *bytes_recv_total;
-    long unsigned int *bytes_recv_local;
+    long unsigned int *bytes_recv_ult;
 };
 
 struct UNIX_arg_struct {
