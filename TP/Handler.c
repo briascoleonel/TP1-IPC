@@ -4,9 +4,9 @@ void* Task(void *arg)
 {
     struct local_threads_arg_struct *argumentos = arg;
 
-    char recvline[MAXLINE];
-    char aux[MAXLINE];
-    char rawmsg[MAXLINE];
+    char recvline[MAXLINE+1];     //Buffer que recibe, se pone MAXLINE +1
+    char aux[MAXLINE];          //Auxilar para borrar checksum y fin de mensaje
+    char rawmsg[MAXLINE];       //Mensaje en crudo
     long int bytes_lect;
     unsigned long int conv_bytes_lect;
 
@@ -18,7 +18,7 @@ void* Task(void *arg)
             {
                 bytes_lect = recv(*(argumentos->socket_conx), recvline, MAXLINE-1, MSG_DONTWAIT);
             }
-            if(argumentos->thread_salida)
+            if(argumentos->thread_salida) //Se puede producir cuando se acaba el tiempo o error de lectura
             {
                 if(bytes_lect < 0)
                 {
@@ -26,7 +26,7 @@ void* Task(void *arg)
                 }
                 if(close(*(argumentos->socket_conx)) < 0)
                 {
-                    printf("Error al cerrar conexcion\n");
+                    printf("Error al cerrar conexion\n");
                 }
                 break;
             }
@@ -35,6 +35,9 @@ void* Task(void *arg)
         {
             if(bytes_lect > 0)
             {
+                pthread_mutex_lock(argumentos->lock);
+                argumentos->segs = 0;
+                pthread_mutex_unlock(argumentos->lock);
                 conv_bytes_lect = (unsigned long int)bytes_lect;
                 if(conv_bytes_lect > 0)
                 {
@@ -51,7 +54,7 @@ void* Task(void *arg)
             }
             while(bytes_lect > 0)
             {
-                if(recvline[bytes_lect-1] == '\n')
+                if(recvline[bytes_lect-1] == '\n') //Comprobamos finalizacion de mensaje HTTP
                 {
                     memset(aux,0,MAXLINE);
                     memset(rawmsg,0,MAXLINE);
