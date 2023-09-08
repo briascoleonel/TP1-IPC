@@ -1,6 +1,6 @@
 #include "Common.h"
 
-void server_conf_socket_INET(int *sock, struct sockaddr_in *serv_addr, int iport, long unsigned int max, char *string_addr)
+void server_conf_socket_IPv4(int *sock, struct sockaddr_in *serv_addr, int iport, long unsigned int max, char *string_addr)
 {
     //Creacion de socket
     if((*(sock) = socket(AF_INET,SOCK_STREAM,0)) < 0)
