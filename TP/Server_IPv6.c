@@ -1,6 +1,6 @@
 #include "Common.h"
 
-int main(void *arg)
+void *Server_IPv6_codigo(void *arg)
 {
     struct IPv6_arg_struct *argumentos = arg;       //Struct para argumentos
     int listenfd;       //FD para escuchar conexiones
@@ -122,7 +122,7 @@ int main(void *arg)
             if(handlers_disp[i] == 1)
             {
                 pthread_join(task_thread[i],NULL);
-                thread_join(cont_thread[i],NULL);
+                pthread_join(cont_thread[i],NULL);
                 pthread_join(file_writer_thread,NULL);
             }
             pthread_mutex_unlock(&lock);

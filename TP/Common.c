@@ -17,6 +17,11 @@
 #include <ctype.h>
 #include <netinet/in.h>             //Para struct de in
 #include <net/if.h>                 //Network interfaces
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/un.h>
+
+
 
 #include "Server_Unix.h"
 #include "Server_IPv4.h"

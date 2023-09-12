@@ -30,5 +30,5 @@ void* Contador_codigo(void *arg)
             }
         }
     }
-    retun NULL;
+    return NULL;
 }

@@ -1,6 +1,6 @@
-#ifndef UNIXSOCKETCONFIG_H    
+#ifndef UNIXSOCKETCONFIG_H    // Comienzo del ifdef guard
 #define UNIXSOCKETCONFIG_H_H
 
-void Config_Socket_Unix(int *sock, struct sockaddr_un *servaddr, long unsigned int max, char *filename);
+void server_conf_socket_Unix(int *sock, struct sockaddr_un *serv_addr, long unsigned int max, char *filename);
 
 #endif

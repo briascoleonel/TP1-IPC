@@ -122,7 +122,7 @@ void *Server_IPv4_codigo(void *arg)
             if(handlers_disp[i] == 1)
             {
                 pthread_join(task_thread[i],NULL);
-                thread_join(cont_thread[i],NULL);
+                pthread_join(cont_thread[i],NULL);
                 pthread_join(file_writer_thread,NULL);
             }
             pthread_mutex_unlock(&lock);
