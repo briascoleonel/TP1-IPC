@@ -37,5 +37,20 @@ Server_IPv6.o: Server_IPv6.c
 Verificar_Argumentos_Server.o: Verificar_Argumentos_Server.c
 	gcc -c -g -Wall -lpthread -pedantic -Werror -Wextra -Wconversion -std=gnu11 Verificar_Argumentos_Server.c
 
+Client_Unix.o: Client_Unix.c
+	gcc -c -Wall -lpthread -pedantic -Werror -Wextra -Wconversion -std=gnu11 Client_Unix.c 
+
+Client_IPv4.o: Client_IPv4.c
+	gcc -c -Wall -lpthread -pedantic -Werror -Wextra -Wconversion -std=gnu11 Client_IPv4.c 
+
+Client_IPv6.o: Client_IPv6.c
+	gcc -c -Wall -lpthread -pedantic -Werror -Wextra -Wconversion -std=gnu11 Client_IPv6.c 
+
+all: Client_Unix.o Client_IPv4.o Client_IPv6.o Main_Server.o $(OBJFILES) $(HEADERS)
+	gcc -o Client_Unix Client_Unix.o $(OBJFILES) -lpthread -lrt
+	gcc -o Client_IPv4 Client_IPv4.o $(OBJFILES) -lpthread -lrt
+	gcc -o Client_IPv6 Client_IPv6.o $(OBJFILES) -lpthread -lrt
+	gcc -o Server Main_Server.o $(OBJFILES) -lpthread -lrt
+
 clean:
-	rm -f Server  *.o 
+	rm -f Server Client_Unix Client_IPv4 Client_IPv6 *.o 

@@ -1,7 +1,7 @@
 #include "Common.h"
 
 //Funciones
-void verificar_argumentos(int argc, char *argv[]);      //Comprobar argumentos
+void verificar_argumentos_IPv6(int argc, char *argv[]);      //Comprobar argumentos
 
 int main(int argc, char *argv[])
 {
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     exit(EXIT_SUCCESS);   
 }
 
-void verificar_argumentos(int argc, char *argv[])
+void verificar_argumentos_IPv4(int argc, char *argv[])
 {
     //La cantidad de argumentos debe ser 6
     if(argc != 6)

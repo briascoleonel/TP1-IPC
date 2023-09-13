@@ -36,7 +36,7 @@ int main(int argc, char*argv[])
     UNIX_argumentos.global_lock = &global_lock;
     UNIX_argumentos.total_bytes_recv_global = &bytes_total_recv_glob;
     UNIX_argumentos.ult_bytes_recv_global = &bytes_ult_recv_glob;
-    UNIX_argumentos.max_clientes = argv[10];
+    UNIX_argumentos.max_clientes = atoi(argv[10]);
     UNIX_argumentos.salir = &salir_todos;
 
     //IPv4
