@@ -1,7 +1,7 @@
 #include "Common.h"
 
 //Funciones
-void verificar_argumentos_IPv6(int argc, char *argv[]);      //Comprobar argumentos
+void verificar_argumentos_IPv4(int argc, char *argv[]);      //Comprobar argumentos
 
 int main(int argc, char *argv[])
 {
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     long int escr_ret_val;
 
     //Llamamos a la verificadora de argumentos
-    verificar_argumentos(argc,argv);
+    verificar_argumentos_IPv4(argc,argv);
     iport = (short unsigned int)atoi(argv[2]);      //Le pasamos el valor por stdin
     
     //Creacion de socket

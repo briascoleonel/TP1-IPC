@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     long int escr_ret_val;
 
     //Llamamos a la verificadora de argumentos
-    verificar_argumentos(argc,argv);
+    verificar_argumentos_Unix(argc,argv);
 
     //Creacion de socket
     /*
@@ -91,14 +91,14 @@ void verificar_argumentos_Unix(int argc, char *argv[])
     }
 
     //Verifica que el nombre del archivo sea correcto
-    if((strlen(argv[1])>MAXLINE) || (filename_valido(argv[1])))
+    if((strlen(argv[1])>MAXLINE) || (!filename_valido(argv[1])))
     {
         printf("Nombre de archivo invalido\n");
         exit(EXIT_FAILURE);
     }
 
     //Verifica que el mensaje solo tenga letras y numeros
-    for(unsigned int i = 0; strlen(argv[2]); i++)
+    for(unsigned int i = 0;i < strlen(argv[2]); i++)
     {
         if(((isdigit(argv[2][i]) == 0) && (isalpha(argv[2][i]) == 0)) || strlen(argv[2]) > MAXLINE)
         {
@@ -108,7 +108,7 @@ void verificar_argumentos_Unix(int argc, char *argv[])
     }
 
     //Verifica que la cantidad de veces que se quiere enviar el mensaje sea correct
-    for(unsigned int i = 0; strlen(argv[3]); i++)
+    for(unsigned int i = 0;i < strlen(argv[3]); i++)
     {
         if((isdigit(argv[3][i]) == 0) || (atoi(argv[3]) <= 0))
         {
@@ -118,7 +118,7 @@ void verificar_argumentos_Unix(int argc, char *argv[])
     }
 
     //Verifica que la cantidad de microsegundos a esperar antes de enviar sea correcta
-    for(unsigned int i = 0; strlen(argv[4]); i++)
+    for(unsigned int i = 0;i < strlen(argv[4]); i++)
     {
         if((isdigit(argv[4][i]) == 0) || (atoi(argv[4]) <= 0))
         {

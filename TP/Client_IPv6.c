@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     long int escr_ret_val;
 
     //Llamamos a la verificadora de argumentos
-    verificar_argumentos(argc,argv);
+    verificar_argumentos_IPv6(argc,argv);
     iport = (short unsigned int)atoi(argv[2]);      //Le pasamos el valor por stdin
     
     //Creacion de socket

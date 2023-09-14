@@ -4,6 +4,9 @@ OBJFILES = Common.o Handler.o Contador.o File_Writing_Thread.o Config_Socket_Uni
 Server: Main_Server.o $(OBJFILES) $(HEADERS)
 	gcc -o Server Main_Server.o $(OBJFILES) -lpthread
 
+Client: Client_IPv4.o $(OBJFILES) $(HEADERS)
+	gcc -o Client_IPv4 Client_IPv4.o Common.o
+
 Common.o: Common.c 
 	gcc -c -Wall -lpthread -pedantic -Werror -Wextra -Wconversion -std=gnu11 -lrt Common.c 
 
@@ -53,4 +56,4 @@ all: Client_Unix.o Client_IPv4.o Client_IPv6.o Main_Server.o $(OBJFILES) $(HEADE
 	gcc -o Server Main_Server.o $(OBJFILES) -lpthread -lrt
 
 clean:
-	rm -f Server Client_Unix Client_IPv4 Client_IPv6 *.o 
+	rm -f Server Client_Unix Client_IPv4 Client_IPv6 Server_INET_Stream UnixCon *.o *.txt
