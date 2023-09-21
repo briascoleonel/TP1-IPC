@@ -17,9 +17,9 @@ void *Server_Unix_codigo(void *arg)
     pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
     //Asignacion de memoria para el thread utilizando cantidad maxima de clientes como referencia
-    task_thread = malloc((unsigned long int)argumentos->max_clientes * sizeof(pthread_t));
-    cont_thread = malloc((unsigned long int)argumentos->max_clientes * sizeof(pthread_t));
+    task_thread = malloc((unsigned long int) argumentos->max_clientes *sizeof(pthread_t));
     handler_thread_args = malloc((unsigned long int) argumentos->max_clientes * sizeof(struct local_threads_arg_struct));
+    cont_thread = malloc((unsigned long int) argumentos->max_clientes * sizeof(pthread_t));
 
     //Inicializamos handlers para manejar los threads
     long unsigned int cant_handlers_disp = 0;
@@ -27,7 +27,7 @@ void *Server_Unix_codigo(void *arg)
     int sig_handler;            //Utiliza el primer handler que se encuentra
 
     //Asignacion de memoria
-    handlers_disp = malloc((unsigned long int)argumentos->max_clientes * sizeof(int));
+    handlers_disp = malloc((unsigned long int)argumentos->max_clientes *sizeof(int));
 
     //Bytes recibidos por UNIX
     unsigned long int bytes_total_recv_local;
@@ -97,7 +97,7 @@ void *Server_Unix_codigo(void *arg)
  
         handler_thread_args[sig_handler].id = sig_handler;
         handler_thread_args[sig_handler].socket_conx = &(connfd[sig_handler]);
-        handler_thread_args[sig_handler].thread_salida= 0;
+        handler_thread_args[sig_handler].thread_salida = 0;
         handler_thread_args[sig_handler].Handlers = handlers_disp;
         handler_thread_args[sig_handler].lock = &lock;
         handler_thread_args[sig_handler].global_lock = argumentos->global_lock;
