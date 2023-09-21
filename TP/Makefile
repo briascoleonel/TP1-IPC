@@ -57,3 +57,15 @@ all: Client_Unix.o Client_IPv4.o Client_IPv6.o Main_Server.o $(OBJFILES) $(HEADE
 
 clean:
 	rm -f Server Client_Unix Client_IPv4 Client_IPv6 Server_INET_Stream UnixCon *.o *.txt
+
+testServer: 
+	./Server 127.0.0.1 1800 Bytes_IPv4.txt UnixCon Bytes_Unix.txt ::1 1800 enp2s0 Bytes_IPv6.txt 15 Bytes_Global.txt
+
+testIPv4:
+	./Client_IPv4 127.0.0.1 1800 mensaje 10 250000 &
+
+testIPv6:
+	./Client_IPv6 ::1 1800 enp2s0 mensaje 10 250000 &
+
+testUnix:
+	./Client_Unix UnixCon mensaje 10 250000 &

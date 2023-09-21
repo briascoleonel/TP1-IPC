@@ -17,6 +17,14 @@ void server_conf_socket_Unix(int *sock, struct sockaddr_un *serv_addr, long unsi
     serv_addr->sun_family = AF_UNIX;
     strcpy(serv_addr->sun_path, filename);
 
+    int yes = 1;
+
+    if(setsockopt(*(sock), SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) ==-1 )
+    {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+
     //Bindea con la direccion especificada
     if((bind(*(sock),(SA*) serv_addr, sizeof(*serv_addr))) < 0)
     {

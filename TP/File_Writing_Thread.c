@@ -2,13 +2,24 @@
 
 void* File_Writing_Thread_codigo(void * arg)
 {
-    struct local_writer_arg_struct *arguments = arg;
-    FILE* destFile;
+    struct local_writer_arg_struct *argumentos = arg;
+    FILE* dest_file;
     
-    destFile = fopen(arguments->Write_File_Name, "w"); 
-    fclose(destFile);
+    dest_file = fopen(argumentos->Write_File_Name, "w"); 
+    fclose(dest_file);
 
-    while(*(arguments->salir) == 0)
+    struct Info_t t1;
+    t1.status = Start;
+    strcpy(t1.filename,argumentos->Write_File_Name);
+    t1.destFile = dest_file;
+    t1.TotalBytesRcv = argumentos->bytes_recv_total;
+    t1.LastBytesRcv = argumentos->bytes_recv_ult;
+    t1.cont = 1;
+    t1.lock = argumentos->lock;
+    TimerInit(&t1);
+
+
+    while(*(argumentos->salir) == 0)
     {
     }
 

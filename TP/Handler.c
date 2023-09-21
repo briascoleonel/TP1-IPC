@@ -1,12 +1,12 @@
 #include "Common.h"
 
-void* Task(void *arg)
+void* Task(void * arg)
 {
     struct local_threads_arg_struct *argumentos = arg;
 
     char recvline[MAXLINE+1];     //Buffer que recibe, se pone MAXLINE +1
     char aux[MAXLINE];          //Auxilar para borrar checksum y fin de mensaje
-    char rawmsg[MAXLINE];       //Mensaje en crudo
+    char rawmsg[MAXLINE] = "";       //Mensaje en crudo
     long int bytes_lect;
     unsigned long int conv_bytes_lect;
 
