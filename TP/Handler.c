@@ -26,7 +26,8 @@ void* Task(void * arg)
                 }
                 if(close(*(argumentos->socket_conx)) < 0)
                 {
-                    printf("Error al cerrar conexion\n");
+                    //Sale bad file descriptor
+                    perror("Error al cerrar conexion\n");
                 }
                 break;
             }

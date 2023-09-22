@@ -69,3 +69,6 @@ testIPv6:
 
 testUnix:
 	./Client_Unix UnixCon mensaje 10 250000 &
+
+testClients:
+	./clients.sh

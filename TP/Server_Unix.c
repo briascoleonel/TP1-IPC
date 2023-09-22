@@ -80,7 +80,7 @@ void *Server_Unix_codigo(void *arg)
         //Pasando la prueba de disponibilidad, agarra el primero disponible
         //Tambien en exclusion mutua
         pthread_mutex_lock(&lock);
-        sig_handler = get_cant_hand_disp(handlers_disp, (unsigned long int)argumentos->max_clientes);
+        sig_handler = get_prim_hand_disp(handlers_disp, (unsigned long int)argumentos->max_clientes);
         pthread_mutex_unlock(&lock);
 
         fflush(stdout);
