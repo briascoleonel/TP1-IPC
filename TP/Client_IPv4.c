@@ -1,22 +1,25 @@
 #include "Common.h"
 
-//Funciones
+//Decalaracion de funciones utilizadas
 void verificar_argumentos_IPv4(int argc, char *argv[]);      //Comprobar argumentos
 
 int main(int argc, char *argv[])
 {
-    //Declaracion de variables
-    int sockfd;          //File descriptor de socket
-    struct sockaddr_in server_addr;     //Struct para especificar server address
-    short unsigned int iport;           //Para verificar numero de puerto
+    //VARIABLES
+    int sockfd;                                     //File descriptor de socket
+    struct sockaddr_in server_addr;                 //Struct para especificar server address
+    short unsigned int iport;                       //Para verificar numero de puerto
 
-    //Para obtener mensaje por stdin
-    char string[MAXLINE];       //Ingresado en stdin
-    char aux[MAXLINE];      
-    char fin_de_msg[7] = "\n";
+    //Para obtener mensaje por stdin que sera enviado al server
+    char string[MAXLINE];                           //Ingresado en stdin
+    char aux[MAXLINE];                              //Auxiliar utilizado para guardar sin salto de linea "/n"
+    char fin_de_msg[7] = "\n";                      //Fin de mensaje agregado para simular HTTP
 
-    long unsigned int veces_enviado;
-    long unsigned int cont = 0;
+    //Para controlar cantidad de veces que se hace el envio
+    long unsigned int veces_enviado;                //Veces que vamos a enviar(se introduce como arg)
+    long unsigned int cont = 0;                     //Contador que ira aumentando cada vez que se envia
+    
+    //Variables para enviar
     long unsigned int cant_bytes;
     long int escr_ret_val;
 
@@ -25,22 +28,20 @@ int main(int argc, char *argv[])
     iport = (short unsigned int)atoi(argv[2]);      //Le pasamos el valor por stdin
     
     //Creacion de socket
-    /*
-    -UNIX
-    -Stream
-    -TCP
-    */
-    if((sockfd = socket(AF_INET,SOCK_STREAM,0))<0)      //INET
+    //AF_INET
+    //SOCK_STREAM
+    //TCP
+    if((sockfd = socket(AF_INET,SOCK_STREAM,0))<0)    
     {
         printf("Fallo al crear socket\n");
         exit(EXIT_FAILURE);
     }
 
     //Handlear el path del archivo del server con el que se quiere conectar
-    //"Limpiamos" el address
+    //Limpiamos la estructura y la cargamos con los valores pasados como argumentos
     bzero(&server_addr, sizeof(server_addr));       //Establece los primeros n bytes del área de bytes a partir de s en cero
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(iport);        //Convierte los bytes a estandar de bytes de red
+    server_addr.sin_port = htons(iport);            //Convierte los bytes a estandar de bytes de red
 
     //Crea una estructura de dirección de red
     if(inet_pton(AF_INET, argv[1], &server_addr.sin_addr) <= 0)
@@ -52,34 +53,36 @@ int main(int argc, char *argv[])
     //Conexion con el server
     if(connect(sockfd, (SA*) &server_addr, sizeof(server_addr)) < 0)
     {
-        printf("falla al conectar con el servidor\n");
+        printf("Falla al conectar con el servidor.\nAsegurese de que el server este funcionando.\n");
         exit(EXIT_FAILURE);
     }
 
-    //Mensaje recibido por stdin
+    //Mensaje recibido por stdin en argv3
     strcpy(string,argv[3]);
-    //Veces que se va a enviar
+
+    //Veces que se va a enviar en argv4
     veces_enviado = (unsigned long int)atoi(argv[4]);
 
     while(1)
     {
         if(cont != veces_enviado)   //Controlamos que se envie las veces requeridas
         {
-            //contruccion del mensaje
-            string[strcspn(string,"\n")] = 0;       //Saca el \n
-            strcpy(aux,string);                 //Guarda en el aux
-            strcat(string,fin_de_msg);          //Concatena el string con fin_de_msg
+            //Contruccion del mensaje
+            string[strcspn(string,"\n")] = 0;                   //Saca el \n
+            strcpy(aux,string);                                 //Guarda en el aux
+            strcat(string,fin_de_msg);                          //Concatena el string con fin_de_msg
 
             //Envio del mensaje
-            cant_bytes = strlen(string);        //Guarda la cantidad de bytes
-            escr_ret_val = write(sockfd,string, cant_bytes);        //Devuelve cantidad de bytes escritos o -1 si falla
+            cant_bytes = strlen(string);                        //Guarda la cantidad de bytes
+            escr_ret_val = write(sockfd,string, cant_bytes);    //Devuelve cantidad de bytes escritos o -1 si falla
+            
             //Comprobamos que no devuelva -1 o haya llegado a la cantidad de bytes    
             if((escr_ret_val == -1) || ((long unsigned int)escr_ret_val != cant_bytes))
             {
                 printf("Fallo al enviar mensaje\n");
                 exit(EXIT_FAILURE);
             }
-            cont++;     //Aumenta el contador
+            cont++;                                             //Aumenta el contador
         }
         else
         {
@@ -87,7 +90,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    close(sockfd);              //Cierra el socket
+    close(sockfd);                                              //Cierra el socket
     exit(EXIT_SUCCESS);   
 }
 
