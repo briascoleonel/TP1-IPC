@@ -110,7 +110,7 @@ void Hndlr(union sigval sigev_value) {
     
     if(bytesRec != 0)
     {
-        if(fprintf(info->destFile,"Log: %ld | Total de Bytes recividos: %ld | Bytes recividos en este segundo: %ld | Bytes/s: %ld\n",
+        if(fprintf(info->destFile,"Log: %ld | Total de Bytes recibidos: %ld | Bytes recibidos en este segundo: %ld | Bytes/s: %ld\n",
         info->cont,bytesRec,lastByteAmount,bandwidth) < 0)
         {
             printf("Falla al escribir en archivo\n");

@@ -2,40 +2,46 @@
 
 void *Server_IPv4_codigo(void *arg)
 {
-    struct IPv4_arg_struct *argumentos = arg;       //Struct para argumentos
-    int listenfd;       //FD para escuchar conexiones
-    int *connfd;        //FD para el socket una vez ocurra el accept
-    struct sockaddr_in serv_addr;       //Struct para pasar direccion
+    //VARIABLES
+    //File descriptors
+    int listenfd;                                           //Utilizado para escuchar conexiones
+    int *connfd;                                            //Utilizado una vez ocurra el accept y haya conexion ya establecida
+    
+    //Estructuras
+    struct IPv4_arg_struct *argumentos = arg;               //Recuperar los argumentos
+    struct sockaddr_in serv_addr;                           //Para pasar la direccion del server
+    struct local_threads_arg_struct *handler_thread_args;   //Para handlear las conexiones
 
+    //Asignacion de memoria utilizando max_clientes como referencia
     connfd = malloc((unsigned long int) argumentos->max_clientes * sizeof(int));
 
-    //Creamos los hilo y mutex para que no haya acceso al mismo tiempo
-    pthread_t *task_thread;
-    pthread_t *cont_thread;
-    struct local_threads_arg_struct *handler_thread_args;
-    pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+    //HILOS
+    pthread_t *task_thread;                                 //Tarea en si
+    pthread_t *cont_thread;                                 //Contador
+    pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;       //Para la exclusion mutua
  
-    //Asignacion de memoria para el thread utilizando cantidad maxima de clientes como referencia
+    //Asignacion de memoria para los hilos utilizando cantidad maxima de clientes como referencia
     task_thread = malloc((unsigned long int) argumentos->max_clientes *sizeof(pthread_t));
     handler_thread_args = malloc((unsigned long int) argumentos->max_clientes * sizeof(struct local_threads_arg_struct));
     cont_thread = malloc((unsigned long int) argumentos->max_clientes * sizeof(pthread_t));
 
-    //Inicializamos handlers para manejar los threads
-    long unsigned int cant_handlers_disp = 0;
-    int *handlers_disp;         //Bandera para saber cuantos hay disponible
-    int sig_handler;            //Utiliza el primer handler que se encuentra
+    //VARIABLES DE HANDLERS
+    long unsigned int cant_handlers_disp = 0;               //Cantidad de handlers disponible
+    int *handlers_disp;                                     //Array para saber que handler esta disponible
+    int sig_handler;                                        //Utiliza el primer handler que se encuentra disponible
 
-    //Asignacion de memoria
+    //Asignacion de memoria utilizando max_clientes como referencia
     handlers_disp = malloc((unsigned long int)argumentos->max_clientes *sizeof(int));
     
-    //Bytes recibidos por IPv4
+    //Bytes recibidos por IPv4 (es decir, locales de este protocolo)
     unsigned long int bytes_total_recv_local;
     unsigned long int bytes_recv_ult_local;
 
-    //Hilo para excribir archivo con bytes recibidos
+    //Hilo y estructura para excribir archivo con bytes recibidos
     pthread_t file_writer_thread;
     struct local_writer_arg_struct file_writer_arg;
 
+    //Se carga la estructura con los valores previamente creados
     file_writer_arg.bytes_recv_total = &bytes_total_recv_local;
     file_writer_arg.bytes_recv_ult = &bytes_recv_ult_local;
     strcpy(file_writer_arg.Write_File_Name, argumentos->IPv4_Write_File_Name);
@@ -55,14 +61,14 @@ void *Server_IPv4_codigo(void *arg)
     //Usa la funcion file_writing_thread que pasa un archivo que se abre de acuerdo a los argumentos que le pasamos
     pthread_create(&file_writer_thread,NULL,File_Writing_Thread_codigo,&file_writer_arg);
 
-    //Esperando conexiones y lanzando hilos
+    //Esperando conexiones y lanzando hilos hasta que salir deje de ser 0
     while(*(argumentos->salir) == 0)
     {
         //En exclusion mutua usando el lock
         pthread_mutex_lock(&lock);
         //Usa la funcion get_cant_hand_disp
         cant_handlers_disp = (long unsigned int) get_cant_hand_disp(handlers_disp,(unsigned long int) argumentos->max_clientes);
-        pthread_mutex_unlock(&lock);    //Libero el lock
+        pthread_mutex_unlock(&lock);                        //Libero el lock
 
         //Compruebo que queden handlers disponibles
         //Usa get_prim_hand_disp para comprobar tambien que haya disponibles
@@ -82,7 +88,7 @@ void *Server_IPv4_codigo(void *arg)
         sig_handler = get_prim_hand_disp(handlers_disp, (unsigned long int)argumentos->max_clientes);
         pthread_mutex_unlock(&lock);
 
-        fflush(stdout);
+        fflush(stdout);                                     //Limpia el buffer de stdout
 
         //Espera y acepta una conexion en el handler disponible
         connfd[sig_handler] = accept(listenfd, (SA*) NULL, NULL);
@@ -94,6 +100,7 @@ void *Server_IPv4_codigo(void *arg)
             exit(EXIT_FAILURE);
         }
 
+        //Ya habiendo conexion, carga los argumentos de la estructura
         handler_thread_args[sig_handler].id = sig_handler;
         handler_thread_args[sig_handler].socket_conx= &(connfd[sig_handler]);
         handler_thread_args[sig_handler].thread_salida = 0;
@@ -107,13 +114,16 @@ void *Server_IPv4_codigo(void *arg)
         handler_thread_args[sig_handler].ult_bytes_recv_global = argumentos->ult_bytes_recv_global;
         handler_thread_args[sig_handler].segs = 0;
 
+        //Se lanzan los hilos de la tarea en si y el contador
         pthread_create(&(task_thread[sig_handler]), NULL, Task, &(handler_thread_args[sig_handler]));
         pthread_create(&(cont_thread[sig_handler]), NULL, Contador_codigo, &(handler_thread_args[sig_handler]));
 
+        //Se modifican los handlers disponibles en exclusion mutua
         ocupar_handler(handlers_disp,sig_handler,&lock);
 
     }
 
+    //En caso de que se introduzca "salir", con join esperamos a terminen los hilos que estan corriendo
     if(*(argumentos->salir) == 1)
     {
         for(int i=0; i<argumentos->max_clientes;i++)
@@ -129,6 +139,8 @@ void *Server_IPv4_codigo(void *arg)
         }
     }
 
+    //Recorremos y cerramos todos los file descriptors
+    //CONEXION
     for(int i=0;i<argumentos->max_clientes;i++)
     {
         if((close(connfd[i])<0))
@@ -138,12 +150,14 @@ void *Server_IPv4_codigo(void *arg)
         }
     }
 
+    //ESCUCHA
     if((close(listenfd)<0)) 
     {
         printf("Error al cerrar listenfd\n");
         exit(EXIT_FAILURE); 
     }
 
+    //Liberamos la memoria previamente asignada
     free(handlers_disp);   
     free(task_thread);          
     free(connfd);              

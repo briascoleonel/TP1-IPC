@@ -2,23 +2,26 @@
 
 int main(int argc, char *argv[])
 {
-    //Hilos y estructuras para los protocolos
-
+    //DEFINICION DE VARIABLES PARA LOS PROTOCOLOs
+    //Hilos
     pthread_t IPv4_Server_Thread;
     pthread_t UNIX_Server_Thread;
     pthread_t IPv6_Server_Thread;
 
+    //Estructuras
     struct IPv4_arg_struct IPv4_argumentos;
     struct UNIX_arg_struct UNIX_argumentos;
     struct IPv6_arg_struct IPv6_argumentos;
 
-    //Hilo y estructura para hilo que se va a usar para bytes recibidos
+    //Hilo y estructura para hilo que se va a usar para escribir los bytes recibidos
     pthread_t Global_File_Writing_Thread;
     struct local_writer_arg_struct global_argumentos;
 
-    //Lock para exclusion mutua
+    //Cantidad de bytes globales redibidos
     unsigned long int bytes_total_recv_glob;
     unsigned long int bytes_ult_recv_glob;
+
+    //Lock para exclusion mutua
     pthread_mutex_t global_lock = PTHREAD_MUTEX_INITIALIZER;
 
     //Mecanismo de salida
@@ -74,19 +77,6 @@ int main(int argc, char *argv[])
     pthread_create(&IPv6_Server_Thread,NULL,Server_IPv6_codigo, &IPv6_argumentos);
 
     //Mecanismo de salida
-    /*
-    while(!salir_todos)
-    {
-        printf("Ingrese -salir- para cerrar el server\n");
-        if(strcmp(salir,"salir"))
-        {
-            salir_todos = 1;
-        }
-        else
-        {
-            printf("No ha ingresado salir. Ha ingresado: %s\n",salir);
-        }
-    }*/
     while (!salir_todos) 
     {
         printf("Ingrese -salir- para cerrar el server\n");
